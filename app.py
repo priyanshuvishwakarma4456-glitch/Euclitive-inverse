@@ -92,16 +92,16 @@ def extended_euclidean_gf2(poly, mod_poly):
 # ==========================================
 # Streamlit User Interface
 # ==========================================
-st.set_page_config(page_title="GF(2) Inverse Calculator", layout="centered")
+st.set_page_config(page_title="GF(2^4) Inverse Calculator", layout="centered")
 
 st.title("Polynomial Multiplicative Inverse Calculator")
-st.markdown("**Applied Cryptography — GF(2) Galois Field**")
+st.markdown("**Applied Cryptography — GF(2^4) Galois Field strictly**")
 
-st.info("💡 **Format Instructions:** Type powers as `xN` or `x^N`. Use `x` for degree 1, and `1` for constants.\n\n*Example:* `x8 + x4 + x3 + x + 1`")
+st.info("💡 **Format Instructions:** Type powers as `xN`. Use `x` for degree 1, and `1` for constants.\n\n*Example:* `x4 + x + 1`")
 
-# Input fields 
-mod_input = st.text_input("1. Enter the modulus (irreducible polynomial):", value="x8 + x4 + x3 + x + 1")
-poly_input = st.text_input("2. Enter the polynomial to invert:", value="x6 + x4 + x + 1")
+# Input fields (Defaults changed to GF(2^4) polynomials)
+mod_input = st.text_input("1. Enter the modulus (irreducible polynomial):", value="x4 + x + 1")
+poly_input = st.text_input("2. Enter the polynomial to invert:", value="x3 + x2 + 1")
 
 if st.button("Calculate Inverse", type="primary"):
     if not mod_input or not poly_input:
@@ -111,6 +111,16 @@ if st.button("Calculate Inverse", type="primary"):
             # Parse inputs
             modulus = parse_poly_string(mod_input)
             poly = parse_poly_string(poly_input)
+            
+            # --- NEW: STRICT GF(2^4) VALIDATION ---
+            if degree(modulus) > 4:
+                st.error(f"**Assignment Constraint Error:** Your modulus has a degree of {degree(modulus)}. The assignment strictly limits this to GF(2^4), meaning the maximum modulus degree is 4 (e.g., x4 + x + 1).")
+                st.stop()
+                
+            if degree(poly) > 3:
+                st.error(f"**Assignment Constraint Error:** Your target polynomial has a degree of {degree(poly)}. In GF(2^4), the target polynomial can have a maximum degree of 3.")
+                st.stop()
+            # --------------------------------------
             
             st.divider()
             st.subheader("Calculation Details")
@@ -154,4 +164,4 @@ if st.button("Calculate Inverse", type="primary"):
             st.error(str(e))
         except ZeroDivisionError as e:
             st.error(str(e))
-            
+                

@@ -92,16 +92,21 @@ def extended_euclidean_gf2(poly, mod_poly):
 # ==========================================
 # Streamlit User Interface
 # ==========================================
-st.set_page_config(page_title="GF(2^4) Inverse Calculator", layout="centered")
+st.set_page_config(page_title="Dynamic GF(2^m) Inverse Calculator", layout="centered")
 
 st.title("Polynomial Multiplicative Inverse Calculator")
-st.markdown("**Applied Cryptography — GF(2^4) Galois Field strictly**")
+st.markdown("**Applied Cryptography — Dynamic Galois Field GF(2^m)**")
 
 st.info("💡 **Format Instructions:** Type powers as `xN`. Use `x` for degree 1, and `1` for constants.\n\n*Example:* `x4 + x + 1`")
 
-# Input fields (Defaults changed to GF(2^4) polynomials)
-mod_input = st.text_input("1. Enter the modulus (irreducible polynomial):", value="x4 + x + 1")
-poly_input = st.text_input("2. Enter the polynomial to invert:", value="x3 + x2 + 1")
+# --- NEW: DYNAMIC FIELD SELECTION ---
+m = st.number_input("Select Galois Field Degree (m) for GF(2^m):", min_value=2, max_value=256, value=4, step=1)
+st.caption(f"**Operating in GF(2^{m})**: The irreducible modulus must be exactly degree {m}. The target polynomial must be degree {m-1} or lower.")
+st.divider()
+
+# Input fields
+mod_input = st.text_input("1. Enter the modulus (irreducible polynomial):", value="x4 + x + 1" if m == 4 else "")
+poly_input = st.text_input("2. Enter the polynomial to invert:", value="x3 + x2 + 1" if m == 4 else "")
 
 if st.button("Calculate Inverse", type="primary"):
     if not mod_input or not poly_input:
@@ -112,17 +117,16 @@ if st.button("Calculate Inverse", type="primary"):
             modulus = parse_poly_string(mod_input)
             poly = parse_poly_string(poly_input)
             
-            # --- NEW: STRICT GF(2^4) VALIDATION ---
-            if degree(modulus) > 4:
-                st.error(f"**Assignment Constraint Error:** Your modulus has a degree of {degree(modulus)}. The assignment strictly limits this to GF(2^4), meaning the maximum modulus degree is 4 (e.g., x4 + x + 1).")
+            # --- NEW: DYNAMIC VALIDATION BASED ON USER CHOICE ---
+            if degree(modulus) != m:
+                st.error(f"**Field Constraint Error:** For GF(2^{m}), your irreducible modulus must have a degree of exactly {m}. The polynomial you entered has a degree of {degree(modulus)}.")
                 st.stop()
                 
-            if degree(poly) > 3:
-                st.error(f"**Assignment Constraint Error:** Your target polynomial has a degree of {degree(poly)}. In GF(2^4), the target polynomial can have a maximum degree of 3.")
+            if degree(poly) >= m:
+                st.error(f"**Field Constraint Error:** In GF(2^{m}), the target polynomial can have a maximum degree of {m-1}. The polynomial you entered has a degree of {degree(poly)}.")
                 st.stop()
-            # --------------------------------------
+            # ----------------------------------------------------
             
-            st.divider()
             st.subheader("Calculation Details")
             
             col1, col2 = st.columns(2)
@@ -164,7 +168,7 @@ if st.button("Calculate Inverse", type="primary"):
             st.error(str(e))
         except ZeroDivisionError as e:
             st.error(str(e))
-                
+
 # ==========================================
 # Footer Signature
 # ==========================================
@@ -177,4 +181,4 @@ st.markdown(
     </div>
     """,
     unsafe_allow_html=True
-)
+                )

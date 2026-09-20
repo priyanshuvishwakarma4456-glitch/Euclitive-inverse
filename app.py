@@ -165,3 +165,16 @@ if st.button("Calculate Inverse", type="primary"):
         except ZeroDivisionError as e:
             st.error(str(e))
                 
+# ==========================================
+# Footer Signature
+# ==========================================
+st.divider()
+st.markdown(
+    """
+    <div style="text-align: center; color: gray; font-size: 14px; margin-top: 20px;">
+        <strong>Assignment no. 2 (Applied cryptography)</strong><br>
+        DIAT, PUNE
+    </div>
+    """,
+    unsafe_allow_html=True
+)
